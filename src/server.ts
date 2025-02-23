@@ -4,6 +4,7 @@ import Fastify from 'fastify'
 
 import { configure } from './config.js'
 import { plugin as authPlugin } from './plugins/auth.js'
+import { plugin as maildevPlugin } from './plugins/maildev.js'
 
 import SendHandler from './plugins/send.js'
 
@@ -48,6 +49,7 @@ export async function build() {
     const prefix = '/tx/v1'
 
     // Authenticated routes
+    instance.register(maildevPlugin)
     instance.register(SendHandler, { prefix })
 
     instance.get('*', () =>

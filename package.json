@@ -1,0 +1,37 @@
+{
+  "name": "mailchannels-docker",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MailChannels API-compliant Docker Container for local development",
+  "author": "Eckhardt Dreyer <eckhardt@dreyer.com.na> (https://eckhardt.dreyer.com.na)",
+  "license": "MIT",
+  "keywords": [],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsup src/index.ts --minify --dts --format esm",
+    "test": "vitest --run --coverage",
+    "dev": "tsx --watch src/index.ts"
+  },
+  "dependencies": {
+    "@fastify/sensible": "^6.0.3",
+    "fastify": "^5.2.1",
+    "fastify-plugin": "^5.0.1",
+    "mustache": "^4.2.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.3.0",
+    "@types/node": "^22.13.5",
+    "@vitest/coverage-v8": "^3.0.6",
+    "eslint": "^9.21.0",
+    "pino-pretty": "^13.0.0",
+    "tsup": "^8.3.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.6"
+  }
+}

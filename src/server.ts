@@ -20,11 +20,16 @@ export async function build() {
       : true,
   })
 
-  server.setErrorHandler((error, request, reply) => {
+  server.setErrorHandler((error, _, reply) => {
     if (error instanceof Fastify.errorCodes.FST_ERR_CTP_BODY_TOO_LARGE) {
       return reply.code(413).send()
     }
-  });
+
+    return reply.status(error.statusCode || 500).send({
+      error: error.name,
+      message: error.message,
+    })
+  })
 
   server.register(FastifySensible)
 

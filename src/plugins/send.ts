@@ -2,10 +2,18 @@
 // register route handlers and not shared functionality.
 
 import type { FastifyInstance } from 'fastify'
+import Mustache from 'mustache'
 import { z } from 'zod'
 
 interface SendQuery {
   'dry-run'?: boolean
+}
+
+interface SendResponse {
+  status: 'sent' | 'failed'
+  message_id: string
+  index: number
+  reason: string
 }
 
 const attachmentSchema = z.object({
@@ -87,7 +95,7 @@ export type SendBody = z.input<typeof bodySchema>
 
 export default async function SendHandler(fastify: FastifyInstance) {
   fastify.post<{ Querystring: SendQuery, Body: SendBody }>('/send', {
-    bodyLimit: 20 * 1024 * 1024
+    bodyLimit: 20 * 1024 * 1024,
   }, async (request, reply) => {
     const parsed = bodySchema.safeParse(request.body)
 
@@ -96,22 +104,44 @@ export default async function SendHandler(fastify: FastifyInstance) {
       const firstErrorMessage = parsed.error.issues[0].message
 
       throw fastify.httpErrors.badRequest(
-        `Invalid request body: ${firstErrorPath} => ${firstErrorMessage}`
+        `Invalid request body at: ${firstErrorPath} => ${firstErrorMessage}`,
       )
     }
 
-    // TODO: parse message with mustache
+    const output: SendResponse[] = []
+    const messages: string[] = []
 
-    if (request.query['dry-run']) {
+    for (const persona of parsed.data.personalizations) {
+      for (const message of parsed.data.content) {
+        // TODO: Get from maildev response?
+        const message_id = Math.random().toString(36).substring(2)
+
+        if ('dry-run' in request.query) {
+          const message_str = message.template_type === 'mustache'
+            ? Mustache.render(message.value, persona.dynamic_template_data)
+            : message.value
+
+          messages.push(message_str)
+        }
+
+        output.push({
+          message_id,
+          status: 'sent',
+          index: output.length,
+          reason: 'Successfully queued message to be sent',
+        })
+      }
+    }
+
+    if ('dry-run' in request.query) {
       return reply.status(200).send({
-        data: ['MailChannels Docker Development Server has not implemented the template parser yet. This is NOT a representation of what your email looks like.'],
+        data: messages,
       })
     }
 
     return reply.status(202).send({
       request_id: request.id,
-      results: [],
+      results: output,
     })
   })
 }
-

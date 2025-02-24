@@ -113,23 +113,46 @@ export default async function SendHandler(fastify: FastifyInstance) {
 
     for (const persona of parsed.data.personalizations) {
       for (const message of parsed.data.content) {
-        // TODO: Get from maildev response?
-        const message_id = Math.random().toString(36).substring(2)
+        const message_str = message.template_type === 'mustache'
+          ? Mustache.render(message.value, persona.dynamic_template_data)
+          : message.value
 
         if ('dry-run' in request.query) {
-          const message_str = message.template_type === 'mustache'
-            ? Mustache.render(message.value, persona.dynamic_template_data)
-            : message.value
-
           messages.push(message_str)
         }
 
-        output.push({
-          message_id,
-          status: 'sent',
-          index: output.length,
-          reason: 'Successfully queued message to be sent',
-        })
+        else {
+          const response = await fastify.getNodemailer().sendMail({
+            to: persona.to.map(t => t.name ? `${t.name} <${t.email}>` : t.email),
+            from: persona.from
+              ? (persona.from.name ? `${persona.from.name} <${persona.from.email}>` : persona.from.email)
+              : parsed.data.from.name
+                ? `${parsed.data.from.name} <${parsed.data.from.email}>`
+                : parsed.data.from.email,
+            cc: persona.cc?.map(t => t.name ? `${t.name} <${t.email}>` : t.email),
+            bcc: persona.bcc?.map(t => t.name ? `${t.name} <${t.email}>` : t.email),
+            headers: parsed.data.headers,
+            replyTo: persona.reply_to
+              ? (persona.reply_to.name ? `${persona.reply_to.name} <${persona.reply_to.email}>` : persona.reply_to.email)
+              : parsed.data.reply_to?.name
+                ? `${parsed.data.reply_to.name} <${parsed.data.reply_to.email}>`
+                : parsed.data.reply_to?.email,
+            subject: persona.subject || parsed.data.subject,
+            text: message_str,
+            html: message_str,
+            attachments: parsed.data.attachments?.map(a => ({ ...a, contentType: a.type })),
+          })
+
+          const message_id = response.messageId
+
+          // TODO: optionally simulate failures?
+          output.push({
+            message_id,
+            status: 'sent',
+            index: output.length,
+            reason: 'Successfully queued message to be sent',
+          })
+        }
       }
     }
 

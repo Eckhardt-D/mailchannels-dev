@@ -62,7 +62,7 @@ describe('post /tx/v1/send', () => {
     })
     expect(response.statusCode).toBe(413)
   })
-  
+
   it('responds with 400 if payload is invalid', async () => {
     const response = await server.inject({
       method: 'POST',
@@ -70,7 +70,7 @@ describe('post /tx/v1/send', () => {
       body: {
         ...validPayload,
         content: [],
-      }
+      },
     })
 
     expect(response.statusCode).toBe(400)
@@ -80,7 +80,7 @@ describe('post /tx/v1/send', () => {
     })
   })
 
-  it('responds with 400 if payload is invalid', async () => {
+  it('responds with 400 if payload is invalid (deep)', async () => {
     const response = await server.inject({
       method: 'POST',
       path: '/tx/v1/send',
@@ -90,7 +90,7 @@ describe('post /tx/v1/send', () => {
           open_tracking: { enable: true },
           click_tracking: { enable: 1 },
         },
-      }
+      },
     })
 
     expect(response.statusCode).toBe(400)
@@ -145,8 +145,8 @@ describe('post /tx/v1/send', () => {
           message_id: expect.any(String),
           reason: 'Successfully queued message to be sent',
           status: 'sent',
-        }
-      ]
+        },
+      ],
     })
   })
 })

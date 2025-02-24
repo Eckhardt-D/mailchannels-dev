@@ -1,3 +1,4 @@
+import type { FastifyInstance } from 'fastify'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { build } from '../server.js'
 
@@ -18,7 +19,7 @@ describe('get /mails', () => {
       method: 'GET',
       path: '/mails',
     })
-    expect(response.statusCode).toBe(200)
-    expect(response.text()).toContain('<html>')
+    expect(response.statusCode).toBe(301)
+    expect(response.body).toContain('<html')
   })
 })

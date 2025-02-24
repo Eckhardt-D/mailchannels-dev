@@ -5,6 +5,7 @@ import Fastify from 'fastify'
 import { configure } from './config.js'
 import { plugin as authPlugin } from './plugins/auth.js'
 import { plugin as maildevPlugin } from './plugins/maildev.js'
+import { plugin as nodeMailerPlugin } from './plugins/nodemailer.js'
 
 import SendHandler from './plugins/send.js'
 
@@ -49,8 +50,9 @@ export async function build() {
     const prefix = '/tx/v1'
 
     // Authenticated routes
-    instance.register(maildevPlugin)
-    instance.register(SendHandler, { prefix })
+    await instance.register(nodeMailerPlugin)
+    await instance.register(maildevPlugin)
+    await instance.register(SendHandler, { prefix })
 
     instance.get('*', () =>
       'Please see documentation at https://docs.mailchannels.net')

@@ -1,5 +1,8 @@
 # MailChannels Dev Server
 
+> [!NOTE]
+> This is not an official MailChannels service.
+
 Run a local server that mimics the MailChannels `/tx/v1/send` API endpoint. The server captures
 the sent emails and stores them temporarily so you can read them in the browser. This is useful
 when developing and testing email without actually sending them.

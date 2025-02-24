@@ -40,5 +40,10 @@
     "typescript": "^5.7.3",
     "vitest": "^3.0.6"
   },
-  "packageManager": "pnpm@9.5.0"
+  "packageManager": "pnpm@9.5.0",
+  "pnpm": {
+    "overrides": {
+      "tsup@8.3.6>esbuild": "^0.25.0"
+    }
+  }
 }

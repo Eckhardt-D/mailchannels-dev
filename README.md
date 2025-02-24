@@ -96,7 +96,7 @@ This endpoint also supports the `dry-run` query parameter, when it is present th
 
 ```json
 {
-    data: [
+    "data": [
         "Hello, World!",
         "Hello, Jane!",
         "<p>Hello, World!</p>"
